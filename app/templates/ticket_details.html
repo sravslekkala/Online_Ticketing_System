@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Ticket Details</h2>
+    <p><strong>ID:</strong> {{ ticket.id }}</p>
+    <p><strong>Title:</strong> {{ ticket.title }}</p>
+    <p><strong>Description:</strong> {{ ticket.description }}</p>
+    <p><strong>Status:</strong> {{ ticket.status }}</p>
+
+    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to Home</a>
+</div>
+{% endblock %}

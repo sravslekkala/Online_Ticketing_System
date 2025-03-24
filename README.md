@@ -7,22 +7,24 @@ This project is a Flask-based Online Ticketing System that allows users to creat
 
 ## 📸 Screenshots
 
-### **1️⃣ App Initialization**
-This shows the application being initialized in the terminal.
+### **1️⃣ Home Page**
+Displays all tickets with options to view and update them.
 
-![App Initialization](fig/AppIntialization.png)
+![Home Page](fig/ui/home_page.png)
 
-### **2️⃣ Running Application in Browser**
-The application running and accessible via the browser.
+### **2️⃣ Creating a Ticket**
+Users can create a new ticket with a title, description, and assign it to an existing user.
 
-![App Running](fig/App_Running.png)
+![Create Ticket](fig/ui/create_ticket.png)
 
-### **3️⃣ Creating a Ticket**
-A demonstration of creating a new ticket using Postman.
+### **3️⃣ Viewing a Ticket**
+Shows the details of a selected ticket.
 
-![Create Ticket](fig/create_ticket.png)
+![View Ticket](fig/ui/view_ticket.png)
 
-### **4️⃣ Retrieving Tickets**
-Fetching all tickets via the API.
+### **4️⃣ Updating a Ticket**
+Users can modify the ticket title, description, status, and priority.
 
-![Retrieve Tickets](fig/get_tickets.png)
+![Update Ticket](fig/ui/update_ticket.png)
+
+---
