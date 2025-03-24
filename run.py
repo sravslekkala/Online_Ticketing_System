@@ -1,5 +1,5 @@
 import os
-from app import create_app, db
+from src import create_app, db
 
 # Choose the environment (default to development)
 config_name = os.getenv('FLASK_ENV', 'development')
