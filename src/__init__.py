@@ -1,10 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import os
+from flask_socketio import SocketIO
 from config import config_dict
+from flask_login import LoginManager
 
 # Initialize SQLAlchemy
 db = SQLAlchemy()
+socketio = SocketIO(cors_allowed_origins='*')
 
 def create_app(config_name='development'):
     """App factory function to create and configure the Flask app."""
@@ -16,6 +18,18 @@ def create_app(config_name='development'):
 
     # Initialize database with the app
     db.init_app(app)
+    socketio.init_app(app)
+    
+    # Set up Flask-Login
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.login'  # This is where Flask redirects unauthenticated users
+    login_manager.init_app(app)
+
+    from .models import User
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     # Import models so they are registered with SQLAlchemy
     with app.app_context():
@@ -28,5 +42,8 @@ def create_app(config_name='development'):
 
     from .tickets import ticket_bp
     app.register_blueprint(ticket_bp, url_prefix='/api')  # Ticket API routes
+
+    from .auth import auth_bp
+    app.register_blueprint(auth_bp)
 
     return app

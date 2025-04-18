@@ -32,7 +32,7 @@
 document.getElementById("createTicketForm").addEventListener("submit", function(event) {
     event.preventDefault();  // Prevent traditional form submission
 
-    let formData = {
+    const formData = {
         title: document.getElementById("title").value,
         description: document.getElementById("description").value,
         creator_id: document.getElementById("creator_id").value
@@ -48,13 +48,18 @@ document.getElementById("createTicketForm").addEventListener("submit", function(
     .then(response => response.json())
     .then(data => {
         if (data.message) {
-            alert("Ticket created successfully!");
-            window.location.href = "/";
+            showToast("✅ Ticket created successfully!");
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 1000);
         } else {
-            alert("Error: " + (data.error || "Unknown error"));
+            showToast("❌ " + (data.error || "Unknown error"));  // use your toast
         }
     })
-    .catch(error => console.error("Error:", error));
+    .catch(error => {
+        console.error("Error:", error);
+        showToast("❌ Something went wrong while creating ticket.");
+    });
 });
 </script>
 {% endblock %}

@@ -1,10 +1,14 @@
 from flask import Blueprint, request, jsonify, redirect, url_for, flash
-from .models import Ticket, db
+from .models import Ticket, db, Comment
+from src import socketio
+from flask_login import login_required, current_user
+
 
 # Create a blueprint for ticket-related routes
 ticket_bp = Blueprint('ticket', __name__)
 
 @ticket_bp.route('/tickets', methods=['POST'])
+@login_required
 def create_ticket():
     """API to create a new ticket"""
     if not request.is_json:
@@ -23,6 +27,13 @@ def create_ticket():
 
     db.session.add(new_ticket)
     db.session.commit()
+    socketio.emit('ticket_created', {
+        'id': new_ticket.id,
+        'title': new_ticket.title,
+        'status': new_ticket.status
+    }, to="*")
+    print("✅ ticket_created SocketIO event emitted")
+
 
     return jsonify({
         'message': 'Ticket created successfully',
@@ -34,7 +45,7 @@ def create_ticket():
         }
     }), 201
 
-@ticket_bp.route('/api/tickets/<int:ticket_id>', methods=['GET'])
+@ticket_bp.route('/tickets/<int:ticket_id>', methods=['GET'])
 def get_ticket(ticket_id):
     """Retrieve a single ticket"""
     ticket = Ticket.query.get(ticket_id)
@@ -55,6 +66,7 @@ def get_ticket(ticket_id):
 
 
 @ticket_bp.route('/tickets/<int:ticket_id>', methods=['PUT'])
+@login_required
 def update_ticket(ticket_id):
     """API to update a ticket"""
     print(f"Received PUT request for ticket ID: {ticket_id}")
@@ -80,12 +92,19 @@ def update_ticket(ticket_id):
         ticket.priority = data['priority']
 
     db.session.commit()
-    print(f"Updated Ticket: {ticket}")  # Debugging output
+    socketio.emit('ticket_updated', {
+        'id': ticket.id,
+        'title': ticket.title,
+        'status': ticket.status,
+        'priority': ticket.priority
+    }, to='*')
+    print("✅ ticket_updated SocketIO event emitted")
 
     return jsonify({'message': 'Ticket updated successfully'}), 200
 
 
 @ticket_bp.route('/api/tickets/<int:ticket_id>', methods=['DELETE'])
+@login_required
 def delete_ticket(ticket_id):
     """API to delete a ticket"""
     ticket = Ticket.query.get(ticket_id)
@@ -97,3 +116,32 @@ def delete_ticket(ticket_id):
     db.session.commit()
 
     return jsonify({'message': 'Ticket deleted successfully'}), 200
+
+
+@ticket_bp.route('/tickets/<int:ticket_id>/comments', methods=['POST'])
+@login_required
+def post_comment(ticket_id):
+    data = request.get_json()
+    content = data.get('content')
+
+    if not content:
+        return jsonify({'error': 'Comment cannot be empty'}), 400
+
+    comment = Comment(
+        content=content,
+        user_id=current_user.id,
+        ticket_id=ticket_id
+    )
+    db.session.add(comment)
+    db.session.commit()
+
+    socketio.emit('comment_added', {
+        'ticket_id': ticket_id,
+        'username': current_user.username,
+        'content': content,
+        'timestamp': comment.created_at.strftime("%Y-%m-%d %H:%M:%S")
+    }, to='*')
+    print("✅ comment_added SocketIO event emitted for ticket", ticket_id)
+
+    return jsonify({'message': 'Comment added'}), 201
+

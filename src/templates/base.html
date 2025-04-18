@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="container mt-3">
+        {% for message in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
@@ -15,18 +27,83 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_ticket_form') }}">Create Ticket</a></li>
-                </ul>
+              <ul class="navbar-nav me-auto">
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('main.create_ticket_form') }}">Create Ticket</a></li>
+              </ul>
+          
+              {% if current_user.is_authenticated %}
+                  <span class="navbar-text text-white me-3">
+                      👤 {{ current_user.username }} ({{ current_user.role }})
+                  </span>
+                  <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.logout') }}">Logout</a>
+              {% else %}
+                  <a class="btn btn-outline-light btn-sm me-2" href="{{ url_for('auth.login') }}">Login</a>
+                  <a class="btn btn-light btn-sm" href="{{ url_for('auth.register') }}">Register</a>
+              {% endif %}
             </div>
         </div>
     </nav>
+
+    <!-- Toast container -->
+    <div id="toast-container" class="toast-container position-fixed bottom-0 start-0 p-3" style="z-index: 1055;">
+    <!-- Toast will be dynamically inserted here -->
+    </div>
+  
 
     <div class="container mt-4">
         {% block content %}{% endblock %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap & Socket.IO scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    
+    <script>
+      const socket = io();
+    
+      socket.on('ticket_created', function(data) {
+        showToast(`🆕 Ticket Created: ${data.title}`);
+      });
+  
+      socket.on('ticket_updated', function(data) {
+        showToast(`✏️ Ticket Updated: ${data.title} → ${data.status}`);
+      });
+
+      socket.on('comment_added', function(data) {
+        console.log("🔥 Real-time comment received:", data); // Debug log
+            
+        // Optionally show a toast (you can comment this out later)
+        showToast(`💬 New comment by ${data.username}: "${data.content}"`);
+            
+        // Or handle update elsewhere (like in ticket_details.html)
+      });
+
+  
+      function showToast(message) {
+        const container = document.getElementById('toast-container');
+    
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-bg-success border-0 show mb-2';
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+    
+        toast.innerHTML = `
+          <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        `;
+      
+        container.appendChild(toast);
+      
+        setTimeout(() => {
+          toast.classList.remove('show');
+          toast.classList.add('hide');
+          setTimeout(() => toast.remove(), 300);
+        }, 4000);
+      }
+    </script>
 </body>
 </html>

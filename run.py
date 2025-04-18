@@ -1,5 +1,5 @@
 import os
-from src import create_app, db
+from src import create_app, db, socketio
 
 # Choose the environment (default to development)
 config_name = os.getenv('FLASK_ENV', 'development')
@@ -21,4 +21,4 @@ with app.app_context():
 
 # Run the Flask application
 if __name__ == '__main__':
-    app.run(debug=(config_name == 'development'))
+    socketio.run(app, debug=True)

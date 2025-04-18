@@ -1,13 +1,97 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container">
-    <h2>Ticket Details</h2>
-    <p><strong>ID:</strong> {{ ticket.id }}</p>
-    <p><strong>Title:</strong> {{ ticket.title }}</p>
-    <p><strong>Description:</strong> {{ ticket.description }}</p>
-    <p><strong>Status:</strong> {{ ticket.status }}</p>
+<div class="container mt-4">
+    <h2>{{ ticket.title }}</h2>
+    <p class="text-muted">Status: <strong>{{ ticket.status }}</strong></p>
+    <p>{{ ticket.description }}</p>
 
-    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to Home</a>
+    <hr>
+    <h4>Comments</h4>
+
+    <div id="comment-list">
+        {% for comment in ticket.comments %}
+            <div class="mb-3 p-2 border rounded">
+                <strong>{{ comment.user.username }}</strong>
+                <small class="text-muted">{{ comment.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small><br>
+                <div>{{ comment.content }}</div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if current_user.is_authenticated %}
+    <div class="mt-4">
+        <form id="comment-form">
+            <div class="mb-3">
+                <textarea class="form-control" id="comment-text" placeholder="Add a comment..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Post Comment</button>
+        </form>
+    </div>
+    {% endif %}
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("comment-form");
+    const ticketId = {{ ticket.id | tojson }};
+
+    if (form) {
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const content = document.getElementById("comment-text").value;
+
+            fetch(`/api/tickets/${ticketId}/comments`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    document.getElementById("comment-text").value = "";
+                    // showToast("✅ You posted a comment!");
+                    window.lastPostedComment = content;
+
+                    // Manually render your own comment
+                    const commentList = document.getElementById("comment-list");
+                    const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
+                    const commentHTML = `
+                        <div class="mb-3 p-2 border rounded">
+                            <strong>You</strong>
+                            <small class="text-muted">${timestamp}</small><br>
+                            <div>${content}</div>
+                        </div>
+                    `;
+                    commentList.insertAdjacentHTML("beforeend", commentHTML);
+                } else {
+                    showToast("❌ " + (data.error || "Failed to post comment"));
+                }
+            });
+        });
+    }
+
+    if (typeof socket !== "undefined") {
+        socket.on('comment_added', function (data) {
+            if (parseInt(data.ticket_id) !== ticketId) return;
+            if (window.lastPostedComment === data.content) {
+                window.lastPostedComment = null;
+                return;
+            }
+
+            const commentList = document.getElementById("comment-list");
+            const commentHTML = `
+                <div class="mb-3 p-2 border rounded">
+                    <strong>${data.username}</strong>
+                    <small class="text-muted">${data.timestamp}</small><br>
+                    <div>${data.content}</div>
+                </div>
+            `;
+            commentList.insertAdjacentHTML("beforeend", commentHTML);
+            showToast(`💬 ${data.username} commented: "${data.content}"`);
+        });
+    } else {
+        console.error("❌ Socket.IO not connected.");
+    }
+});
+</script>
 {% endblock %}

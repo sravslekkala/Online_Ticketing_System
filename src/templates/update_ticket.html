@@ -40,10 +40,10 @@
 
 <script>
 document.getElementById("updateTicketForm").addEventListener("submit", function(event) {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault();
 
-    let ticketId = "{{ ticket.id }}";
-    let formData = {
+    const ticketId = "{{ ticket.id }}";
+    const formData = {
         title: document.getElementById("title").value,
         description: document.getElementById("description").value,
         status: document.getElementById("status").value,
@@ -60,13 +60,21 @@ document.getElementById("updateTicketForm").addEventListener("submit", function(
     .then(response => response.json())
     .then(data => {
         if (data.message) {
-            alert("Ticket updated successfully!");
-            window.location.href = "/";
+            // ✅ ADD THIS:
+            showToast("✅ Ticket updated successfully!");
+
+            // ✅ THEN delay the redirect:
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 1000);
         } else {
-            alert("Error: " + (data.error || "Unknown error"));
+            showToast("❌ " + (data.error || "Failed to update ticket"));
         }
     })
-    .catch(error => console.error("Error:", error));
+    .catch(error => {
+        console.error("Update failed:", error);
+        showToast("❌ Error while updating ticket.");
+    });
 });
 </script>
 {% endblock %}
