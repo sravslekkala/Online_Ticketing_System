@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, redirect, url_for, flash
-from .models import Ticket, db, Comment
+from src.models import Ticket, db, Comment
 from src import socketio
 from flask_login import login_required, current_user
 

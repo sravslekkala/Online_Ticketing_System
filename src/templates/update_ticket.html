@@ -34,6 +34,20 @@
             </select>
         </div>
 
+        {% if current_user.role in ['Admin', 'Developer'] %}
+        <div class="mb-3">
+            <label for="creator_id" class="form-label">Assignee</label>
+            <select class="form-control" id="creator_id" name="creator_id" required>
+                {% for user in users %}
+                    <option value="{{ user.id }}" {% if ticket.creator_id == user.id %}selected{% endif %}>
+                        {{ user.username }} ({{ user.email }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+
         <button type="submit" class="btn btn-success">Update Ticket</button>
     </form>
 </div>

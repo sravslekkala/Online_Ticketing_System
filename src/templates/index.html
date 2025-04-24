@@ -1,31 +1,96 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container">
-    <h2 class="mb-4">All Tickets</h2>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">📊 Performance Overview</h4>
+        <small class="text-muted">
+            ⏱ Avg. Resolution Time: <strong>{{ avg_days }} days</strong>
+        </small>
+    </div>
 
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for ticket in tickets %}
-            <tr>
-                <td>{{ ticket.id }}</td>
-                <td>{{ ticket.title }}</td>
-                <td>{{ ticket.status }}</td>
-                <td>
-                    <a href="{{ url_for('main.ticket_details', ticket_id=ticket.id) }}" class="btn btn-primary btn-sm">View</a>
-                    <a href="{{ url_for('main.update_ticket_form', ticket_id=ticket.id) }}" class="btn btn-warning btn-sm">Edit</a>
-                </td>                
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        <div class="col">
+            <h5 class="text-center">Tickets by Status</h5>
+            <div class="chart-container w-100" style="height:300px;">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+        <div class="col">
+            <h5 class="text-center">Tickets by Priority</h5>
+            <div class="chart-container d-flex justify-content-center" style="height:300px;">
+                <canvas id="priorityChart" style="max-width: 90%; max-height: 100%;"></canvas>
+            </div>
+        </div>
+        <div class="col">
+            <h5 class="text-center">Monthly Ticket Creation Trend</h5>
+            <div class="chart-container w-100" style="height:300px;">
+                <canvas id="monthlyTrendChart"></canvas>
+            </div>
+        </div>
+        <div class="col">
+            <h5 class="text-center">Top Assignees by Ticket Count</h5>
+            <div class="chart-container w-100" style="height:300px;">
+                <canvas id="assigneeChart"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    new Chart(statusChart, {
+        type: 'bar',
+        data: {
+            labels: {{ status_counts.keys() | list | tojson }},
+            datasets: [{
+                label: 'Tickets by Status',
+                data: {{ status_counts.values() | list | tojson }},
+                backgroundColor: 'rgba(54, 162, 235, 0.7)'
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    new Chart(priorityChart, {
+        type: 'doughnut',
+        data: {
+            labels: {{ priority_counts.keys() | list | tojson }},
+            datasets: [{
+                label: 'Tickets by Priority',
+                data: {{ priority_counts.values() | list | tojson }},
+                backgroundColor: ['#f39c12', '#3498db', '#e74c3c']
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    new Chart(monthlyTrendChart, {
+        type: 'line',
+        data: {
+            labels: {{ monthly_labels | tojson }},
+            datasets: [{
+                label: 'Tickets Created (Monthly)',
+                data: {{ monthly_data | tojson }},
+                borderColor: '#2980b9',
+                tension: 0.3
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    new Chart(assigneeChart, {
+        type: 'bar',
+        data: {
+            labels: {{ assignee_labels | tojson }},
+            datasets: [{
+                label: 'Tickets Assigned',
+                data: {{ assignee_data | tojson }},
+                backgroundColor: '#1abc9c'
+            }]
+        },
+        options: { responsive: true }
+    });
+});
+</script>
 {% endblock %}
