@@ -3,12 +3,19 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
 from flask_login import LoginManager
 from config import config_dict
-import os
+import os, psycopg2
 
 db = SQLAlchemy()
 socketio = SocketIO(cors_allowed_origins="*")
 
 def create_app(config_name='development'):
+    """
+    Create and configure the Flask application.
+    Args:
+        config_name (str): The configuration to use (default: 'development').
+    Returns:
+        Flask: The configured Flask application.
+    """
     app = Flask(__name__)
     config_class = config_dict.get(config_name, config_dict['development'])
     app.config.from_object(config_class)
@@ -24,6 +31,13 @@ def create_app(config_name='development'):
 
     @login_manager.user_loader
     def load_user(user_id):
+        """
+        Load a user by ID for Flask-Login.
+        Args:
+            user_id (int): The ID of the user to load.
+        Returns:
+            User: The user object if found, None otherwise.
+        """
         return User.query.get(int(user_id))
 
     with app.app_context():
@@ -41,6 +55,13 @@ def create_app(config_name='development'):
 
     @app.route('/uploads/<filename>')
     def uploaded_file(filename):
+        """
+        Serve uploaded files.
+        Args:
+            filename (str): The name of the file to serve.
+        Returns:
+            Response: The file as a response.
+        """
         upload_folder = os.path.join(os.getcwd(), current_app.config['LOCAL_UPLOAD_FOLDER'])
         print(f"Serving from folder: {upload_folder}")
         print(f"Requested filename: {filename}")

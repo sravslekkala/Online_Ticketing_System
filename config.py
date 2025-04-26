@@ -3,6 +3,9 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
+    """
+    Base configuration class with common settings.
+    """
     SECRET_KEY = os.getenv('SECRET_KEY', 'your-secret-key')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     STORAGE_TYPE = os.getenv('STORAGE_TYPE', 'local')
@@ -15,14 +18,27 @@ class Config:
     DEFAULT_ADMIN_PASSWORD = "admin"
 
 class DevelopmentConfig(Config):
+    """
+    Development environment configuration.
+    """
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'instance', 'app_demo.db')
 
 class TestingConfig(Config):
+    """
+    Testing environment configuration.
+    """
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
 
+class ProductionConfig(Config):
+    """
+    Production environment configuration.
+    """
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+
 config_dict = {
     'development': DevelopmentConfig,
-    'testing': TestingConfig
+    'testing': TestingConfig,
+    'production': ProductionConfig
 }

@@ -7,6 +7,11 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
+    """
+    Handle user registration.
+    Returns:
+        Rendered template for registration or redirects to login on success.
+    """
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
@@ -28,6 +33,11 @@ def register():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Handle user login.
+    Returns:
+        Rendered template for login or redirects to index on success.
+    """
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -46,6 +56,11 @@ def login():
 @auth_bp.route('/logout')
 @login_required
 def logout():
+    """
+    Handle user logout.
+    Returns:
+        Redirects to login page.
+    """
     logout_user()
     flash('Logged out successfully.')
     return redirect(url_for('auth.login'))

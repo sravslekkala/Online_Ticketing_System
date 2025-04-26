@@ -5,24 +5,36 @@ services:
     image: postgres:14
     container_name: ticketing_postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: ticketdb
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-ticketdb}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
     container_name: ticketing_web
     ports:
-      - "5000:5000"
+      - "${FLASK_PORT:-9000}:5000"
     environment:
-      DATABASE_URL: postgresql://postgres:password@db:5432/ticketdb
-      FLASK_ENV: development
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-ticketdb}
+      FLASK_ENV: ${FLASK_ENV:-production}
+      FLASK_APP: run.py
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key}
+      LOCAL_UPLOAD_FOLDER: uploads
+    volumes:
+      - ./uploads:/app/uploads
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+    driver: local
