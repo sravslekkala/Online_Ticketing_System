@@ -74,6 +74,12 @@ A modern, user-friendly support ticket management system built with Flask. This 
 
 ## 🚀 Getting Started
 
+### Prerequisites
+- Python 3.8 or higher
+- Docker and Docker Compose (for Docker setup)
+- Git
+- Poetry (for local development)
+
 ### Quick Start with Docker (Recommended)
 ```bash
 # Clone the repository
@@ -89,13 +95,22 @@ docker-compose up --build
 Visit `http://localhost:5000` to access the application.
 
 ### Local Development Setup
-If you prefer to run the application locally:
 ```bash
+# Install Poetry if not already installed
+curl -sSL https://install.python-poetry.org | python3 -
+
+# Clone the repository
+git clone <repository-url>
+cd online-ticketing-system
+
 # Install dependencies
 poetry install
 
+# Copy environment template and update with your settings
+cp .env.example .env
+
 # Start the development server
-python run.py
+poetry run python run.py
 ```
 
 ## 🔍 Key Features in Detail
