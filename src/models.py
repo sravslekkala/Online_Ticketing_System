@@ -30,8 +30,9 @@ class Ticket(db.Model):
     priority = db.Column(db.String(20), default='Medium')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
     creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    attachment_path = db.Column(db.String(255))
+    
     comments = db.relationship('Comment', backref='ticket', cascade='all, delete', passive_deletes=True)
 
 class Comment(db.Model):
@@ -44,6 +45,8 @@ class Comment(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     ticket_id = db.Column(db.Integer, db.ForeignKey('tickets.id', ondelete='CASCADE'), nullable=False)
+
+    attachment_path = db.Column(db.String(255))
 
     user = db.relationship('User', backref='user_comments', overlaps="author,comments")
 

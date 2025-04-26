@@ -1,20 +1,19 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container">
+<div class="container mt-4">
     <h2>Create a New Ticket</h2>
 
-    <form id="createTicketForm">
+    <form method="POST" action="{{ url_for('main.create_ticket_form') }}" enctype="multipart/form-data">
         <div class="mb-3">
             <label for="title" class="form-label">Title</label>
             <input type="text" class="form-control" id="title" name="title" required>
         </div>
-
+    
         <div class="mb-3">
             <label for="description" class="form-label">Description</label>
             <textarea class="form-control" id="description" name="description" required></textarea>
         </div>
-
+    
         <div class="mb-3">
             <label for="creator_id" class="form-label">Assign To</label>
             <select class="form-control" id="creator_id" name="creator_id" required>
@@ -24,42 +23,21 @@
             </select>
         </div>
 
+        <div class="mb-3">
+            <label for="priority" class="form-label">Priority</label>
+            <select class="form-control" id="priority" name="priority" required>
+                <option value="High">High</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Low">Low</option>
+            </select>
+        </div>
+    
+        <div class="mb-3">
+            <label for="attachment" class="form-label">Attach File (optional)</label>
+            <input type="file" class="form-control" id="attachment" name="attachment">
+        </div>
+    
         <button type="submit" class="btn btn-primary">Submit Ticket</button>
     </form>
 </div>
-
-<script>
-document.getElementById("createTicketForm").addEventListener("submit", function(event) {
-    event.preventDefault();  // Prevent traditional form submission
-
-    const formData = {
-        title: document.getElementById("title").value,
-        description: document.getElementById("description").value,
-        creator_id: document.getElementById("creator_id").value
-    };
-
-    fetch("/api/tickets", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            showToast("✅ Ticket created successfully!");
-            setTimeout(() => {
-                window.location.href = "/";
-            }, 1000);
-        } else {
-            showToast("❌ " + (data.error || "Unknown error"));  // use your toast
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        showToast("❌ Something went wrong while creating ticket.");
-    });
-});
-</script>
 {% endblock %}

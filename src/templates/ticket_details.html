@@ -2,8 +2,20 @@
 {% block content %}
 <div class="container mt-4">
     <h2>{{ ticket.title }}</h2>
-    <p class="text-muted">Status: <strong>{{ ticket.status }}</strong></p>
+    <p class="text-muted">
+        Status: <strong>{{ ticket.status }}</strong><br>
+        Priority: <strong>{{ ticket.priority }}</strong><br>
+        Assignee: <strong>{{ ticket.creator.username if ticket.creator else 'N/A' }}</strong>
+    </p>
     <p>{{ ticket.description }}</p>
+    
+    {% if ticket.attachment_path %}
+    <div class="mt-2">
+        📎 <a href="{{ url_for('uploaded_file', filename=ticket.attachment_path.split('/')[-1]) }}" target="_blank">
+            View Attachment
+        </a>
+    </div>
+    {% endif %} 
 
     <hr>
     <h4>Comments</h4>
@@ -14,76 +26,51 @@
                 <strong>{{ comment.user.username }}</strong>
                 <small class="text-muted">{{ comment.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small><br>
                 <div>{{ comment.content }}</div>
+                {% if comment.attachment_path %}
+                <div>
+                    📎 <a href="/uploads/{{ comment.attachment_path.split('/')[-1] }}" target="_blank">View Attachment</a>
+                </div>
+                {% endif %}
             </div>
         {% endfor %}
     </div>
 
     {% if current_user.is_authenticated %}
     <div class="mt-4">
-        <form id="comment-form">
+        <!-- ✅ Normal HTML POST form -->
+        <form method="POST" action="{{ url_for('main.post_comment', ticket_id=ticket.id) }}" enctype="multipart/form-data">
             <div class="mb-3">
-                <textarea class="form-control" id="comment-text" placeholder="Add a comment..." required></textarea>
+                <textarea class="form-control" name="content" placeholder="Write your comment..." required></textarea>
+            </div>
+            <div class="mb-3">
+                <input type="file" name="attachment" class="form-control">
             </div>
             <button type="submit" class="btn btn-primary">Post Comment</button>
-        </form>
+        </form>     
     </div>
     {% endif %}
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("comment-form");
     const ticketId = {{ ticket.id | tojson }};
-
-    if (form) {
-        form.addEventListener("submit", function (event) {
-            event.preventDefault();
-            const content = document.getElementById("comment-text").value;
-
-            fetch(`/api/tickets/${ticketId}/comments`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    document.getElementById("comment-text").value = "";
-                    // showToast("✅ You posted a comment!");
-                    window.lastPostedComment = content;
-
-                    // Manually render your own comment
-                    const commentList = document.getElementById("comment-list");
-                    const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
-                    const commentHTML = `
-                        <div class="mb-3 p-2 border rounded">
-                            <strong>You</strong>
-                            <small class="text-muted">${timestamp}</small><br>
-                            <div>${content}</div>
-                        </div>
-                    `;
-                    commentList.insertAdjacentHTML("beforeend", commentHTML);
-                } else {
-                    showToast("❌ " + (data.error || "Failed to post comment"));
-                }
-            });
-        });
-    }
 
     if (typeof socket !== "undefined") {
         socket.on('comment_added', function (data) {
             if (parseInt(data.ticket_id) !== ticketId) return;
-            if (window.lastPostedComment === data.content) {
-                window.lastPostedComment = null;
-                return;
-            }
 
             const commentList = document.getElementById("comment-list");
+            let attachmentHTML = "";
+            if (data.attachment) {
+                attachmentHTML = `<div><a href="/uploads/${data.attachment}" target="_blank">📎 View Attachment</a></div>`;
+            }
+
             const commentHTML = `
                 <div class="mb-3 p-2 border rounded">
                     <strong>${data.username}</strong>
                     <small class="text-muted">${data.timestamp}</small><br>
                     <div>${data.content}</div>
+                    ${attachmentHTML}
                 </div>
             `;
             commentList.insertAdjacentHTML("beforeend", commentHTML);
