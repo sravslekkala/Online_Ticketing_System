@@ -116,7 +116,7 @@ python run.py
 ### 3. File Management
 - **Upload Files**: Attach relevant documents to tickets and comments
 - **Supported Formats**: PDF, PNG, JPG, JPEG, and DOCX files
-- **Size Limits**: Files up to 16MB can be uploaded
+- **Size Limits**: Files up to 5MB can be uploaded
 - **Secure Storage**: Files are stored securely in the configured upload folder
 
 ### 4. User Experience
@@ -127,11 +127,11 @@ python run.py
 
 ## 🛡️ Security & Reliability
 
+## Security Features
+
 - **Secure Authentication**: Password hashing and session management
-- **CSRF Protection**: Prevents cross-site request forgery attacks
 - **Input Validation**: All user inputs are validated and sanitized
 - **Error Handling**: Comprehensive error catching and logging
-- **Data Backup**: Regular database backups through Docker volumes
 
 ## 📝 Logging & Monitoring
 
