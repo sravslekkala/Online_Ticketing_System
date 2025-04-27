@@ -207,7 +207,7 @@ def create_ticket_form():
         flash("An error occurred while creating the ticket.", "danger")
         return redirect(url_for('main.index'))
 
-@main_bp.route('/update_ticket/<int:ticket_id>', methods=['GET', 'PUT'])
+@main_bp.route('/update_ticket/<int:ticket_id>', methods=['GET', 'POST'])
 def update_ticket_form(ticket_id):
     """
     Handle the update of an existing ticket.
@@ -221,17 +221,22 @@ def update_ticket_form(ticket_id):
         users = User.query.all()
 
         if request.method == 'POST':
-            data = {
-                'title': request.form['title'],
-                'description': request.form['description'],
-                'status': request.form['status'],
-                'priority': request.form['priority'],
-                'creator_id': request.form['creator_id']
-            }
+            if request.is_json:
+                data = request.get_json()
+            else:
+                data = {
+                    'title': request.form['title'],
+                    'description': request.form['description'],
+                    'status': request.form['status'],
+                    'priority': request.form['priority'],
+                    'creator_id': request.form['creator_id']
+                }
 
             # Validate form data
             is_valid, error_message = validate_ticket_data(data)
             if not is_valid:
+                if request.is_json:
+                    return jsonify({'error': error_message}), 400
                 flash(f"❌ {error_message}", "danger")
                 return redirect(request.url)
 
@@ -244,12 +249,16 @@ def update_ticket_form(ticket_id):
             db.session.commit()
             logger.info(f"Ticket updated successfully: {ticket.id}")
 
+            if request.is_json:
+                return jsonify({'message': 'Ticket updated successfully!'})
             flash("Ticket updated successfully!", "success")
-            return redirect(url_for('main.index'))
+            return redirect(url_for('main.ticket_list'))
 
         return render_template('update_ticket.html', ticket=ticket, users=users)
     except Exception as e:
         logger.error(f"Error in update_ticket_form route: {str(e)}")
+        if request.is_json:
+            return jsonify({'error': 'An error occurred while updating the ticket.'}), 500
         flash("An error occurred while updating the ticket.", "danger")
         return redirect(url_for('main.index'))
 

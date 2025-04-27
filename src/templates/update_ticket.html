@@ -61,11 +61,12 @@ document.getElementById("updateTicketForm").addEventListener("submit", function(
         title: document.getElementById("title").value,
         description: document.getElementById("description").value,
         status: document.getElementById("status").value,
-        priority: document.getElementById("priority").value
+        priority: document.getElementById("priority").value,
+        creator_id: document.getElementById("creator_id")?.value || "{{ ticket.creator_id }}"
     };
 
-    fetch(`/api/tickets/${ticketId}`, {
-        method: "PUT",
+    fetch(`/update_ticket/${ticketId}`, {
+        method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
@@ -79,7 +80,7 @@ document.getElementById("updateTicketForm").addEventListener("submit", function(
 
             // ✅ THEN delay the redirect:
             setTimeout(() => {
-                window.location.href = "/";
+                window.location.href = "/tickets";
             }, 1000);
         } else {
             showToast("❌ " + (data.error || "Failed to update ticket"));
