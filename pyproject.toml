@@ -1,9 +1,12 @@
 [tool.poetry]
 name = "online-ticketing-system"
 version = "0.1.0"
-description = ""
+description = "A modern, user-friendly support ticket management system"
 authors = ["Sai Sravani Lekkala"]
 readme = "README.md"
+packages = [
+    { include = "src" }
+]
 
 [tool.poetry.dependencies]
 python = ">=3.12"
@@ -15,18 +18,9 @@ flask-login = "^0.6.3"
 flask-migrate = "^4.1.0"
 psycopg2-binary = "^2.9.10"
 python-dotenv = "^1.0.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
-pytest-cov = "^4.1.0"
-black = "^24.1.1"
-flake8 = "^7.0.0"
+werkzeug = "^3.0.1"
+gunicorn = "^20.1.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "--cov=src --cov-report=term-missing"

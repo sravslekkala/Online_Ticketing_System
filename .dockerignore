@@ -1,0 +1,47 @@
+# Test files
+tests/
+*.pyc
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Development files
+.env
+.env.*
+!.env.example
+
+# Version control
+.git
+.gitignore
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg 

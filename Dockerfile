@@ -25,8 +25,12 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.create false && \
     poetry install --no-root --no-dev
 
-# Copy the rest of the application
-COPY . .
+# Copy application source code (excluding tests and other files specified in .dockerignore)
+COPY src/ src/
+COPY run.py config.py ./
+
+# Create uploads directory
+RUN mkdir -p uploads && chmod 777 uploads
 
 # Expose the port the app runs on
 EXPOSE 5000
