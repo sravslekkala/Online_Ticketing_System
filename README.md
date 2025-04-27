@@ -2,6 +2,16 @@
 
 A modern, user-friendly support ticket management system built with Flask. This system helps teams efficiently track, manage, and resolve support tickets with real-time updates and collaboration features.
 
+## 📑 Table of Contents
+- [🎯 What This System Does](#-what-this-system-does)
+- [🖼️ Application Screenshots](#-application-screenshots)
+- [📹 Demo Video](#-demo-video)
+- [🚀 Getting Started](#-getting-started)
+- [🔍 Key Features in Detail](#-key-features-in-detail)
+- [🛡️ Security & Reliability](#-security--reliability)
+- [📝 Logging & Monitoring](#-logging--monitoring)
+- [🛠️ Technical Details](#-technical-details)
+
 ## 🎯 What This System Does
 
 ### For Support Teams
