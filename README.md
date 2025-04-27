@@ -72,6 +72,10 @@ A modern, user-friendly support ticket management system built with Flask. This 
 - Clear user feedback
 - Easy re-login option
 
+## 📹 Demo Video
+Watch the full demo of the Online Ticketing System in action:
+[![Online Ticketing System Demo](https://img.youtube.com/vi/kdr3DDD5XiI/0.jpg)](https://www.youtube.com/watch?v=kdr3DDD5XiI)
+
 ## 🚀 Getting Started
 
 ### Prerequisites
